@@ -1,0 +1,57 @@
+\documentclass[12pt]{thapathaliece}
+
+
+\input{vars.tex}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes,arrows}
+
+\input{src/frontmatter/abbreviations}
+\input{src/frontmatter/symbols}
+
+
+
+\begin{document}
+
+% \input{src/frontmatter/_coverWithSupervisors}
+\input{src/frontmatter/_coverBase}
+
+\clearpage
+\pagenumbering{roman}
+
+% \input{src/frontmatter/declar}
+% \input{src/frontmatter/certificate}
+% \input{src/frontmatter/copyright}
+
+
+% \input{src/frontmatter/acknow}
+\input{src/frontmatter/abstract}
+\input{src/frontmatter/toc}
+
+\clearpage
+\pagenumbering{arabic}
+
+\input{src/chapters/intro}
+\input{src/chapters/literatureReview}
+% \input{src/chapters/requirementAnalysis}
+\input{src/chapters/Methodology}
+% \input{src/chapters/implementation}
+% \input{src/chapters/result&Analysis}
+\input{src/chapters/expectedOutcomes}
+% \input{src/chapters/conclusion}
+% \input{src/chapters/futureEnhancements.tex}
+
+% \clearpage
+% \appendix
+% \addcontentsline{toc}{chapter}{APPENDICES}
+% \phantomsection
+% \input{src/backmatter/appendix}
+
+\cleardoublepage
+\phantomsection
+\renewcommand{\bibname}{REFERENCES}
+\nocite{*}
+\bibliographystyle{IEEEtranN}
+\bibliography{references}
+
+\end{document}

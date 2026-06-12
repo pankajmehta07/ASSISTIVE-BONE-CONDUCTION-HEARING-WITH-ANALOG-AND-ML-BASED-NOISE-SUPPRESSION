@@ -1,0 +1,30 @@
+\renewcommand{\contentsname}{TABLE OF CONTENTS}
+\renewcommand{\listfigurename}{LIST OF FIGURES}
+\renewcommand{\listtablename}{LIST OF TABLES}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+
+\glsaddall[types={acronym,symbols}]
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{LIST OF ABBREVIATIONS}
+\printglossary[
+  type=\acronymtype,
+  title={LIST OF ABBREVIATIONS},
+  toctitle={LIST OF ABBREVIATIONS}
+]
+
+\cleardoublepage
+
+\phantomsection
+\addcontentsline{toc}{chapter}{LIST OF SYMBOLS}
+\printglossary[
+  type=symbols,
+  title={LIST OF SYMBOLS},
+  toctitle={LIST OF SYMBOLS}
+]
+
+\cleardoublepage

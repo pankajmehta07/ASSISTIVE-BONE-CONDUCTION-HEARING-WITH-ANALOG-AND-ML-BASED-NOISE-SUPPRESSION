@@ -1,0 +1,50 @@
+\chapter{INTRODUCTION}
+
+\section{Background}
+Clear voice communication in an acoustically hostile environment is a challenge across a wide range of professional and civilian applications. Conventional air-conduction microphone systems capture all pressure variations in the surrounding air, making them equally sensitive to the desired voice signal but also to the background noise. In settings such as construction sites, factory floors, military operations, or high-speed riding, ambient sound pressure levels routinely exceed 85-100 dB(A), rendering standard voice communication unreliable or entirely unintelligible.\\[10pt]
+Bone conduction technology operates on a fundamentally different physical principle. When a person speaks, the vocal cords generate vibrations that propagate not only as airborne sound waves but also as mechanical oscillations transmitted directly through the tissues and bones of the skull. A bone conduction microphone, typically a piezoelectric or electrodynamic transducer is placed against the mastoid bone behind the ear. It senses these skeletal vibrations and converts them to an electrical signal. As airborne ambient noise does not generate significant bone vibration in the skull of the listener, the bone conduction pickup is inherently largely immune to environmental acoustic noise, making it exceptionally well suited for noisy environments.\\[10pt]
+Bone conduction for voice communication was applied in military aviation headsets as early as the Second World War, and the technology has since been used in professional communications, hearing assistance devices, consumer wearables, and medical implants. In recent years, advances in low-cost microcontrollers, miniaturised analog signal processing integrated circuits, and machine learning model compression have made it feasible to build fully integrated, affordable bone conduction voice systems outside of specialist or military contexts.\\[10pt]
+This project proposes a complete voice amplification and noise suppression system based on a hybrid Analog plus TinyML architecture. By delegating the majority of the noise suppression work to carefully selected analog circuits, specifically a noise gate circuit and active Butterworth band-pass filters, this system achieves strong noise rejection without requiring expensive high-performance digital signal processors. A compact TinyML model running on a standard STM32F401 microcontroller then handles the residual task of transient noise spike detection and voice frequency equalization.
+
+\section{Motivation}
+Kathmandu and the broader Nepalese context present a compelling case for this type of system. A substantial portion of the workforce in Nepal is employed in construction, road transport, manufacturing, and security sectors where sustained noise levels frequently exceed safe communication thresholds. Existing commercial noise-cancelling communication headsets are either expensive imported products inaccessible to most users or are designed for quiet or moderately noisy environments inadequate for the target use cases.\\[10pt]
+A pure all-digital signal processing approach which involves high-end DSP chips, I2S audio codecs, and multi-layer PCBs would be both complex and costly to prototype in Nepal given the constraints of component availability, PCB fabrication capability, and project budget. The hybrid analog-digital architecture proposed here is specifically designed to maximise performance within these constraints: the analog front-end uses components available at local electronics shops, while the microcontroller (STM32F401 "Blue Pill") is a widely available and inexpensive platform familiar to the engineering community.\\[10pt]
+Additionally, individuals with conductive hearing impairment which means the outer or middle ear is non-functional but the cochlea and auditory nerve are intact, can benefit directly from bone conduction output devices that bypass the damaged structures. Affordable, locally produceable bone conduction communication devices could make a meaningful difference in accessibility for this population in Nepal.
+
+
+\section{Problem Definition}
+Existing assistive listening devices that use bone conduction output typically fall into two categories, each with major drawbacks. Some devices omit noise suppression entirely, which makes them useless in noisy environments such as crowded rooms or public transit. Others rely on heavy digital processing including fast Fourier transforms, spectral subtraction, and sometimes even neural processing which demands costly integrated circuits like the STM32H7, high-end audio codecs, or dedicated neural processing units. That approach not only drives up cost and complexity but also introduces perceptible latency, often exceeding 15 to 20 milliseconds, which degrades the naturalness of real-time conversation. The challenge is to design a system that achieves four goals simultaneously. It must amplify nearby human speech in real time while suppressing continuous background noises such as fans, engines, or traffic. It must also reject impulsive transient noises like door slams or tool drops. The entire signal chain must maintain an end-to-end latency below 15 milliseconds. Furthermore, all components should be either salvageable from electronic waste or available at very low cost.
+
+\section{Objectives}
+\begin{itemize}
+    \item Design and build an analog front end with bandpass filters (300Hz - 3.4kHz) and a noise gate using salvaged op-amps, achieving >20dB of steady state noise rejection.
+    \item To achieve end-to-end latency under ~15ms which is superior to pure-digital designs.
+\end{itemize}
+
+\section{Scope and Application}
+\begin{itemize}
+    \item Individuals with mild conductive hearing loss who cannot tolerate occlusive eartips (non‑medical PSAP category).
+    \item Industrial workers in high‑noise environments (factories, workshops) to hear verbal instructions.
+    \item Security and military personnel who need to keep their ears free while boosting conversation.
+    \item Does not aim to replace medical hearing aids nor treat profound hearing loss. 
+    \item Focuses on affordability, low latency, and ease of repair using locally available parts.
+\end{itemize}
+
+% \section{Report Organization}
+
+% \subsection{Introduction}
+
+
+% \subsection{Literature Review}
+
+% \subsection{Requirement Analysis}
+
+% \subsection{Methodology}
+
+% \subsection{Implementation Details}
+
+% \subsection{Result and Analysis}
+
+% \subsection{Future Enhancements}
+
+% \subsection{Conclusion }
