@@ -1,5 +1,165 @@
 \chapter{REQUIREMENT ANALYSIS}
 
+\section{Hardware Requirements}
+
+\subsection{Audio Acquisition Components}
+The audio acquisition stage is responsible for capturing surrounding sounds and converting them into electrical signals that can be processed by the system. Since environmental sounds and speech exist as acoustic waves, they must first be transformed into electrical signals before filtering, amplification, and analysis can occur.
+
+\subsubsection{Analog MEMS Microphone (ADMP401 or Equivalent)}
+
+The ADMP401 is an analog MEMS (Micro-Electro-Mechanical Systems) microphone used to capture speech and environmental sounds. It offers high sensitivity, low power consumption, compact size, and good audio quality, making it suitable for portable hearing-assistance applications. The microphone converts sound waves into low-amplitude analog voltage signals.
+
+\subsubsection{Pre-Amplifier Circuit Based on LM324}
+
+The output signal from the microphone is very weak and cannot be processed directly. Therefore, an LM324 operational amplifier is used as a pre-amplifier to increase the signal amplitude. This amplification improves signal quality and prepares the audio signal for filtering and further processing stages.
+
+\subsection{Signal Conditioning Components}
+The signal conditioning stage improves the quality of the acquired audio signal by removing unwanted noise and retaining useful speech information. This stage ensures that only relevant speech frequencies are passed to the microcontroller for analysis.
+
+\subsubsection{LM324 Operational Amplifiers}
+
+LM324 operational amplifiers are used to construct active band-pass filters. These filters allow speech frequencies between 100 Hz and 3.4 kHz to pass while suppressing low-frequency noises such as engine rumble and high-frequency noises such as electrical hiss. 
+
+\subsubsection{Resistors and Capacitors}
+
+Resistors and capacitors form the RC networks required for amplifier gain control and filter design. Their values determine the cutoff frequencies and filtering characteristics of the signal-conditioning circuits.
+
+
+\subsubsection{1N4148 Diode}
+
+The 1N4148 is a fast-switching diode used in the noise-gate circuit. It rectifies the audio signal and helps generate a DC voltage proportional to the signal amplitude, enabling speech detection.
+
+\subsubsection{BC547 Transistor}
+
+The BC547 is an NPN transistor used as an electronic switch. In the noise-gate circuit, it allows or blocks the audio signal depending on the detected signal level.
+Trimpot for Threshold Adjustment
+The trimpot is a variable resistor used to adjust the noise-gate threshold. It allows users to control the sensitivity of the noise gate according to environmental noise conditions.
+
+\subsection{Processing and Control Unit}
+The processing and control unit acts as the brain of the system. It receives filtered audio signals, executes machine learning algorithms, and controls the transient-noise suppression mechanism.
+
+\subsubsection{STM32F401 Development Board}
+
+The STM32F401 is a 32-bit ARM Cortex-M4 microcontroller with built-in ADCs, timers, DMA support, and sufficient memory for TinyML applications. It performs audio sampling, neural network inference, and system control functions.
+
+\subsubsection{ADC Interface}
+
+The Analog-to-Digital Converter (ADC) converts the filtered analog audio signal into digital samples. The STM32F401 uses a 12-bit ADC operating at 16 kHz sampling frequency to acquire audio data for machine learning analysis.
+
+\subsubsection{Transient-Limiting Transistor Circuit}
+
+The transient-limiting transistor circuit is controlled by the microcontroller. When a sudden loud sound is detected, the transistor temporarily mutes the audio path by grounding the signal, preventing discomfort to the user.
+
+\subsection{Audio Output Components}
+The audio output stage amplifies the processed audio signal and delivers it to the user through bone conduction technology.
+
+\subsubsection{LM386 Audio Amplifier}
+
+The LM386 is a low-power audio amplifier used to increase the power level of the processed audio signal. It provides sufficient output power to drive the bone-conduction actuator effectively.
+
+\subsubsection{10 k$\Omega$ Potentiometer}
+
+The potentiometer acts as a volume-control device. It allows users to adjust the loudness of the output signal according to their hearing requirements and comfort.
+
+\subsubsection{220 µF Coupling Capacitor}
+
+The coupling capacitor blocks unwanted DC components while allowing the AC audio signal to reach the actuator. This prevents DC current from damaging the output stage.
+
+\subsubsection{Bone Conduction Actuator}
+
+The bone-conduction actuator converts electrical signals into mechanical vibrations. These vibrations travel through the user's skull and stimulate the cochlea directly, allowing sound perception without blocking the ear canal.
+\subsection{Power Supply Components}
+The power supply stage provides stable electrical power to all hardware components and ensures reliable operation of the system.
+
+\subsubsection{3.7 V Li-Ion Battery}
+
+The lithium-ion battery serves as the primary power source. It provides portable and rechargeable operation, making the device suitable for mobile use.
+
+\subsubsection{TP4056 Charging Module}
+
+The TP4056 is a battery-charging module designed specifically for lithium-ion batteries. It provides safe charging, overcharge protection, and battery-management functionality.
+
+\subsubsection{AM1117 Voltage Regulator}
+
+The AM1117 is a low-dropout voltage regulator used to convert battery voltage into a stable 3.3 V supply required by the STM32F401 and analog circuits.
+
+\subsubsection{Power Switch and Connectors}
+
+Power switches are used to turn the system on and off, while connectors provide secure electrical connections between the battery, charging circuit, and electronic modules.
+\section{Software Requirements}
+\subsection{Firmware Development Tools}
+Firmware development tools are used to develop, compile, configure, and debug the embedded software running on the STM32F401 microcontroller.
+
+\subsubsection{STM32CubeIDE}
+
+STM32CubeIDE is an integrated development environment provided by STMicroelectronics. It supports code writing, compiling, debugging, and firmware uploading for STM32 microcontrollers.
+
+\subsubsection{STM32 HAL Libraries}
+
+The Hardware Abstraction Layer (HAL) libraries provide simplified software functions for controlling STM32 peripherals such as ADCs, timers, DMA controllers, and GPIO pins. They reduce programming complexity and improve code portability.
+
+\subsubsection{STM32CubeMX}
+
+STM32CubeMX is a graphical configuration tool used to configure microcontroller peripherals, clock settings, pin assignments, and communication interfaces. It automatically generates initialization code, reducing development effort.
+\subsection{Machine Learning Development Tools}
+Machine learning development tools are used to create, train, evaluate, and optimize the TinyML model responsible for transient-noise detection.
+
+\subsubsection{TensorFlow 2.x}
+
+TensorFlow 2.x is an open-source machine learning framework developed by Google. It is used to build and train neural network models capable of distinguishing speech from transient noises.
+
+\subsubsection{TensorFlow Lite}
+
+TensorFlow Lite is a lightweight version of TensorFlow optimized for embedded and mobile devices. It enables trained models to run efficiently on memory-constrained systems.
+
+\subsubsection{Python Programming Environment}
+
+Python provides the programming environment used for dataset preprocessing, model training, feature extraction, testing, and performance evaluation.
+
+\subsection{Model Deployment Tools}
+Model deployment tools are responsible for converting the trained machine learning model into a format suitable for execution on the STM32F401 microcontroller.
+
+\subsubsection{STM32Cube.AI}
+
+STM32Cube.AI converts TensorFlow Lite models into optimized C code that can run efficiently on STM32 microcontrollers. It also estimates memory consumption and inference performance.
+
+\subsubsection{TensorFlow Lite Converter}
+
+The TensorFlow Lite Converter transforms trained TensorFlow models into TensorFlow Lite format and applies optimization techniques such as quantization to reduce model size and computational requirements.
+
+\subsection{Audio Dataset Preparation Tools}
+Audio dataset preparation tools are used to collect, process, and prepare audio samples required for machine learning training.
+
+\subsubsection{Audacity}
+
+Audacity is a free audio recording and editing software used to record speech samples and transient-noise events. It allows trimming, filtering, and organizing audio data before training.
+
+\subsubsection{NumPy}
+
+NumPy is a Python library used for numerical computation and array processing. It is used to manipulate audio samples and prepare them for machine learning applications.
+
+\subsubsection{Librosa}
+
+Librosa is a Python library specifically designed for audio signal processing. It provides functions for audio loading, frame extraction, feature generation, and spectral analysis.
+\subsection{Testing and Debugging Tools}
+Testing and debugging tools are used to verify the correct operation of both hardware and software components during development.
+
+\subsubsection{Serial Monitor}
+
+The Serial Monitor displays runtime information transmitted by the microcontroller, including ADC readings, model predictions, and debugging messages.
+
+\subsubsection{STM32 Debugger}
+
+The STM32 Debugger allows developers to inspect variables, set breakpoints, and execute code step-by-step to identify and resolve software issues.
+
+\subsubsection{Oscilloscope}
+
+An oscilloscope is an electronic instrument used to visualize electrical waveforms. It is used to verify microphone outputs, filter responses, amplifier outputs, and timing signals.
+
+\subsubsection{Multimeter}
+
+A multimeter is used to measure voltage, current, resistance, and continuity. It assists in verifying circuit operation, troubleshooting faults, and validating power-supply performance.
+
 
 
 

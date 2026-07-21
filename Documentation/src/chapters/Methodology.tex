@@ -10,50 +10,234 @@ The system consists of three main stages: analog signal conditioning, digital pr
 \end{figure}
 
 \section{Description of Working Principle}
-Ambient sound is captured by an analog MEMS microphone. The signal passes through an active band-pass filter (300 Hz - 3.4 kHz) built with LM324 op-amps, which removes low-frequency rumble and high-frequency hiss. A noise gate (diode-capacitor peak detector + transistor) silences the output when the signal falls below a threshold, eliminating low-level static. The filtered analog signal is sampled by the STM32F401 ADC at 16 kHz. A tiny DNN running on the STM32 detects transient impulsive noises (door slam, footstep). If a transient is detected, the MCU pulls a control line low for 50 ms, momentarily muting the output via a transistor limiter. The signal is then amplified by an LM386 power amplifier and drives a bone conduction actuator pressed against the user's mastoid bone.
+Ambient sound is captured by an analog MEMS microphone. The signal passes through an active band-pass filter (100 Hz - 3.4 kHz) built with LM324 op-amps, which removes low-frequency rumble and high-frequency hiss. A noise gate (diode-capacitor peak detector + transistor) silences the output when the signal falls below a threshold, eliminating low-level static. The filtered analog signal is sampled by the STM32F401 ADC at 16 kHz. A tiny DNN running on the STM32 detects transient impulsive noises (door slam, footstep). If a transient is detected, the MCU pulls a control line low for 50 ms, momentarily muting the output via a transistor limiter. The signal is then amplified by an LM386 power amplifier and drives a bone conduction actuator pressed against the user's mastoid bone.
 
 \section{Hardware Implementation}
 \subsection{Microphone and Pre-amplification}
-Component: Analog MEMS microphone (e.g., ADMP401, or salvaged equivalent).
-Circuit: Non-inverting amplifier using LM324 with gain set to 20-50 dB to bring microphone output to line level.
+The first stage of the system is the microphone and pre-amplifier circuit. An analog MEMS microphone converts acoustic sound waves into a small electrical signal. However, the output of the microphone is typically only a few millivolts, which is insufficient for further processing. Therefore, a non-inverting amplifier based on the LM324 operational amplifier is used to increase the signal amplitude. The voltage gain of the non-inverting amplifier is given by:
+\[ A_v = 1 + \frac{R_f}{R_1} \]
+where \(R_f\) is the feedback resistor and \(R_1\) is the input resistor. By selecting appropriate resistor values, a gain of approximately 20-50 dB is achieved, amplifying the weak microphone signal to line level while preserving its waveform. This amplified signal is then suitable for filtering and further processing.
 
 \subsection{Active Band-Pass Filter}
-Component: LM324 or NE5532 operational amplifiers, resistors, capacitors.
+After amplification, the audio signal passes through an active band-pass filter implemented using LM324 or NE5532 operational amplifiers together with resistors and capacitors. The purpose of this stage is to retain only the frequency range important for human speech while rejecting unwanted noise. Human speech is concentrated mainly between 80 Hz and 8 kHz (unless singing); therefore, frequencies below 100 Hz (such as engine rumble and fan noise) and frequencies above 3.4 kHz (such as hiss and electromagnetic interference) are attenuated.
+The lower and upper cutoff frequencies are determined by the RC networks according to:
+\[f_c = \frac{1}{2 \pi RC} \]
+The filter consists of a high-pass section with a cutoff frequency of approximately 100 Hz and a low-pass section with a cutoff frequency of approximately 3.4 kHz. As a result, only the speech band is allowed to pass, significantly improving speech intelligibility before digital processing.
 
 \subsection{Noise Gate}
-Components: 1N4148 diode, electrolytic capacitor (10 \gls{symb:mu}F), BC547 transistor, resistors.
-Operation: The diode-capacitor network rectifies and smooths the audio signal; the transistor switches off the audio path when the rectified voltage drops below a threshold set by a trimpot.
+Even after filtering, low-level background noise may still be present. To suppress this unwanted noise, a noise gate circuit is employed. The circuit uses a 1N4148 diode, a 10 µF capacitor, a BC547 transistor, and several resistors. The diode rectifies the audio signal, converting it into a pulsating DC voltage. The capacitor then smooths this voltage to produce an envelope that represents the average signal level.
+The capacitor charging and discharging behavior can be expressed as:
+\[V_C(t)=V_0e^{-t/RC}\]
+where \(V_c\) is the capacitor voltage and RC is the time constant of the circuit. A trimpot is used to set a threshold voltage. When the envelope voltage exceeds the threshold, indicating the presence of speech, the transistor allows the audio signal to pass. When the envelope falls below the threshold, indicating only weak background noise, the transistor blocks the audio path. This prevents amplification of low-level noise during silent periods and improves the overall signal-to-noise ratio.
+
 
 \subsection{Microcontroller and Transient Limiter}
-Component: STM32F401 “Blue Pill” board, NPN transistor (BC547), resistor.
-Connection: Filtered audio is fed to an ADC pin (PA0). A digital output pin (PA1) drives the base of the transistor placed in series with the audio signal. When the ML model detects a transient, the output pin goes high for 50 ms, shorting the audio to ground.
+The filtered and gated audio signal is simultaneously fed to the STM32F401 microcontroller through the ADC pin PA0. The ADC samples the signal at a rate of 16 kHz, converting the analog waveform into digital data for analysis. A lightweight TinyML model running on the STM32 continuously examines incoming audio frames to identify transient noises such as door slams, hammer strikes, and footsteps.
+If the neural network classifies a sound as a transient event, the microcontroller sets the PA1 output pin HIGH for approximately 50 ms. This output drives the base of a BC547 transistor connected across the audio line. The transistor effectively shorts the signal to ground, muting the output and preventing the loud transient from reaching the user.
+The ADC resolution can be represented as:
+\[ Resolution = \frac{V_{ref}}{2^{12}}  \]
+for the 12-bit ADC used in the STM32F401. This stage provides intelligent protection against sudden loud sounds while maintaining low system latency.
+
 
 \subsection{Audio Power Amplifier and Bone Conduction Actuator}
-Components: LM386 IC, 10 k$\omega$ potentiometer (volume control), 220 $\mu$F capacitor (output coupling), bone conduction actuator (e.g., generic 4$\omega$ 1-2W vibrator).
-Circuit: Standard LM386 non-inverting amplifier (gain = 200) with the actuator connected via the coupling capacitor.
+The cleaned audio signal is next fed into an LM386 audio power amplifier. The LM386 increases the signal power so that it can drive the bone conduction actuator effectively. A 10 k$\Omega$ potentiometer is included at the input for volume adjustment, allowing the user to control the output level. A 220 µF coupling capacitor is connected at the output to block DC components and pass only the AC audio signal.
+The LM386 can be configured for a voltage gain of up to 200. The amplified signal is applied to a 4$\Omega$, 1-2 W bone conduction actuator. Unlike a conventional loudspeaker that produces sound waves in air, the actuator converts electrical energy into mechanical vibrations. These vibrations are transmitted through the user's skull to the cochlea, allowing sound perception while keeping the ear canal open. This makes the system suitable for users who need environmental awareness while receiving amplified speech.
 
-\subsection{Power Supply}
-Components: 3.7V Li-ion battery (1000 mAh), TP4056 charger module or self-designed BMS.
-Distribution: 3.7V directly powers the LM386 (works down to 4V). A 3.3V LDO (AM1117) on the STM32 board derives 3.3V for the MCU and op-amps.
+% \subsection{Power Supply}
+% The entire system is powered by a 3.7 V, 1000 mAh lithium-ion battery. A TP4056 charging module is used to safely charge the battery and provide protection against overcharging. The battery directly powers the LM386 audio amplifier, while the STM32F401 microcontroller and analog signal-conditioning circuits require a regulated 3.3 V supply.
+% An AMS1117 low-dropout voltage regulator is therefore used to convert the battery voltage to a stable 3.3 V output. The regulator output voltage follows the relation:
+% \[ V_{out} = 3.3V \]
+% This regulated supply ensures reliable operation of the microcontroller and operational amplifiers despite variations in battery voltage. Together, the battery, charging circuit, and voltage regulator provide a compact and portable power solution for the assistive hearing system.
+
 
 \section{Software Implementation}
+The software portion of the proposed system is responsible for detecting sudden transient noises and controlling the muting mechanism in real time. While the analog circuitry removes most steady-state background noise, the STM32F401 microcontroller performs intelligent audio analysis using a TinyML model. The software consists of three major parts: firmware implementation on the STM32, training of the TinyML model, and integration of the generated model into the embedded system.
 \subsection{Firmware on STM32F401}
-ADC Configuration: 12-bit, continuous conversion mode, sampling rate 16 kHz using a timer trigger.
-Buffering: Circular buffer of 40 samples (2.5 ms of audio).
-TinyML Model: Pre-trained quantized int8 DNN with architecture: input layer (40), hidden dense layers (16, 16, 16, ReLU), output layer (1, sigmoid). Model size <20 KB flash, <5 KB RAM.
-Inference: Every time the buffer is filled, call the STM32Cube.AI generated run\_inference() function. The output is a probability of a transient event.
-Muting Logic: If probability > 0.8, set mute\_pin HIGH; start a non-blocking 50 ms timer; after timer expires, set pin LOW.
+The STM32F401 microcontroller continuously monitors the filtered audio signal using its built-in Analog-to-Digital Converter (ADC). The ADC operates in 12-bit continuous conversion mode and samples the incoming audio signal at a rate of 16 kHz. This means that the microcontroller captures 16,000 audio samples every second, which is sufficient to represent speech frequencies up to 8 kHz according to the Nyquist sampling theorem.
+The ADC resolution is given by:
+\[ Resolution = \frac{V_{ref}}{2^{12}}  \]
+where \(V_{REF}\) is the reference voltage and \(2^{12}=4096\) represents the number of quantization levels available in a 12-bit converter. A higher resolution allows the microcontroller to detect small variations in the audio signal more accurately.
+The sampled audio data is stored in a circular buffer containing 40 samples. Since the sampling rate is 16 kHz, the duration represented by one buffer is:
+\[\text{Buffer Duration}=\frac{40}{16000}\] 
+\[=0.0025 \text{ s}=2.5 \text{ ms}\]
+A circular buffer continuously overwrites old data with new samples, ensuring uninterrupted audio acquisition while minimizing memory usage.
+Once the buffer is filled, the firmware calls the TinyML inference function generated by STM32Cube.AI. The neural network analyzes the 40-sample audio frame and produces a probability value between 0 and 1 indicating the likelihood of a transient event.
+The output neuron uses the sigmoid activation function:
+\[\sigma(x)=\frac{1}{1+e^{-x}}\]
+which converts the network output into a probability. Values close to 0 indicate normal speech, while values close to 1 indicate a transient noise event.
+If the predicted probability exceeds 0.8, the firmware activates the muting circuit by setting the mute control pin HIGH. A non-blocking timer is then started for 50 ms. After the timer expires, the mute pin is automatically cleared, restoring normal audio transmission. This approach prevents sudden loud sounds from reaching the bone-conduction actuator while maintaining low system latency.
+
 
 \subsection{Training the TinyML Model}
-Dataset: Collected by recording 30 minutes of speech in background noise (fan, traffic) and 100 transient events (door slam, hammer, footstep) through the same analog front end.
-Preprocessing: Frame extraction (40 samples per frame, 50\% overlap). Label frames: speech = 0, transient = 1.
-Model Training: TensorFlow 2.x, Dense layers with ReLU, sigmoid output. Binary crossentropy loss, Adam optimizer, 20 epochs.
-Quantization and Export: Convert to TensorFlow Lite (int8 quantization) then use STM32Cube.AI to generate C code.
+Although analog filters effectively suppress steady background noises such as fan hum, traffic noise and electrical interference, they cannot differentiate between useful speech and sudden impulsive sounds. Both speech and transient noises may fall within the same frequency range and therefore pass through the analog filters. Consequently, additional intelligent processing is required to distinguish between them.
+To address this limitation, a lightweight machine learning model is trained to classify audio segments as either normal speech or transient noise. When a transient event is detected, the model instructs the microcontroller to temporarily mute the output, protecting the user from discomfort caused by loud impacts.
+The dataset is created by recording approximately 30 minutes of speech in realistic noisy environments, such as rooms with fans or nearby traffic. Additionally, around 100 transient events, including door slams, hammer strikes, and footsteps, are recorded using the same analog front-end. Using the same hardware during data collection ensures that the training data closely matches real operating conditions.
+The recorded audio is divided into frames containing 40 samples each, with a 50\% overlap between consecutive frames. Overlapping frames ensure that transient events occurring at frame boundaries are not missed.
+Each frame is assigned a label:
+\[
+\text{Speech} = 0
+\]
+\[
+\text{Transient} = 1
+\]
+The neural network is trained using TensorFlow 2.x and consists of an input layer with 40 neurons, three hidden dense layers containing 16 neurons each, and a single output neuron. The hidden layers use the ReLU activation function:
+\[
+ReLU(x)=\max(0,x)
+\]
+which introduces non-linearity and allows the network to learn complex patterns within the audio data.
+The output layer uses a sigmoid activation function to produce a probability value between 0 and 1. During training, the Binary Cross-Entropy loss function is used:
+\[
+L=-\left[y\log(p)+(1-y)\log(1-p)\right]
+\]
+where y is the true label and p is the predicted probability. The Adam optimization algorithm updates the network weights over 20 training epochs to minimize classification error.
+After training, the model is converted to TensorFlow Lite format and quantized to 8-bit integers (int8). Quantization significantly reduces memory requirements and computational complexity, allowing the model to run efficiently on the STM32F401 while maintaining acceptable accuracy.
+
 
 \subsection{Integration}
-Generated C model files are included in the STM32CubeIDE project.
-Main loop: ADC DMA fills buffer → inference → update mute pin.
+After quantization, STM32Cube.AI is used to convert the TensorFlow Lite model into optimized C source files compatible with the STM32F401 microcontroller. These generated files are then added directly to the STM32CubeIDE project.
+During operation, the firmware follows a continuous processing loop. The ADC, assisted by Direct Memory Access (DMA), fills the circular buffer with incoming audio samples without burdening the CPU. Once the buffer is filled, the inference function is executed, and the neural network evaluates whether a transient event is present.
+
+% The software workflow can be summarized as:
+If the predicted probability exceeds the predefined threshold, the mute pin is activated for 50 ms; otherwise, audio transmission continues normally. This integration of analog filtering and TinyML based transient detection enables the system to achieve low latency, efficient noise suppression, and improved user comfort in real-world hearing-assistance applications.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{src/images/flowchart.png}
+    \caption{Flowchart of the Proposed System}
+    \label{fig:flowchart}
+\end{figure}
 
 \section{Instrumentation Tools}
-Hardware: Oscilloscope (for filter tuning), multimeter, soldering station, breadboard.
-Software: STM32CubeIDE, STM32Cube.AI, TensorFlow 2.x, Audacity (for dataset recording).
+\subsection{Hardware}
+\subsubsection{Oscilloscope}
+ An oscilloscope is an electronic test instrument used to visualize and analyze electrical signals as waveforms. In this project, it is used for filter tuning, signal verification, and troubleshooting by displaying voltage variations over time. It helps ensure that the audio signal is properly conditioned before being processed by the microcontroller and machine learning model.
+\subsubsection{Multimeter}
+ A multimeter is a versatile measuring instrument used to measure electrical quantities such as voltage, current, resistance, and continuity. During hardware development, it is used to verify circuit connections, check component values, monitor power supply levels, and diagnose faults in the system.
+\subsubsection{Soldering Station}
+ A soldering station is a temperature-controlled tool used for permanently joining electronic components to a printed circuit board (PCB) or prototype board. It provides precise temperature control, ensuring reliable electrical connections while minimizing the risk of damaging sensitive components.
+
+
+\subsection{Software}
+\subsubsection{STM32CubeIDE}
+ STM32CubeIDE is an integrated development environment (IDE) provided by STMicroelectronics for programming STM32 microcontrollers. It combines code editing, compilation, debugging, and project management tools in a single platform, enabling efficient firmware development and testing.
+
+ \subsubsection{STM32Cube.AI}
+ STM32Cube.AI is a software package that converts trained machine learning models into optimized C code for STM32 microcontrollers. It enables the deployment of artificial intelligence applications on resource-constrained embedded systems while maintaining efficient memory and computational usage.
+
+ \subsubsection{TensorFlow 2.x}
+ TensorFlow 2.x is an open-source machine learning framework developed by Google. It provides tools for data preprocessing, model training, validation, and deployment. In this project, it is used to develop and train the audio classification model before exporting it for embedded deployment.
+
+ \subsubsection{Audacity}
+ Audacity is a free and open-source audio recording and editing software application. It is used for recording, editing, labeling, and preprocessing audio samples required for dataset creation. The software supports various audio formats and provides tools for noise reduction and waveform analysis, making it suitable for preparing high-quality training data for machine learning applications.
+
+\section{Performance Evaluation Methodology}
+\subsection{Objective performance metrics}
+\subsubsection{Short-Time Objective Intelligibility} 
+STOI operates by comparing short-time temporal envelope correlations between clean and filtered speech across frequency bands. The speech signals are then segmented into short-time frames, transformed into the time-frequency domain, and normalized before correlation is computed. A higher STOI score indicates that the enhanced signal preserves the temporal speech structure more effectively, which is critical for hearing-impaired listeners in noisy environments. 
+STOI values range from 0 to 1, where higher values indicate better intelligibility. 
+
+\subsubsection{Noise Reduction (dB)} 
+Noise Reduction (NR) quantifies the amount of background noise attenuation achieved by the system. It is typically measured in dB and represents the reduction in noise energy between input and output signals.
+Mathematically, it is expressed as the difference in noise power levels before and after processing:
+
+\begin{equation}
+NR = 10 \log_{10}\left(\frac{P_{\text{noise,in}}}{P_{\text{noise,out}}}\right)
+\end{equation} 
+
+\subsubsection{SNR Improvement} 
+SNR improvement measures how effectively the system enhances the relative strength of speech over background noise. It is defined as the difference between output SNR and input SNR:
+\begin{equation}
+\Delta SNR = SNR_{\text{out}} - SNR_{\text{in}}
+\end{equation}
+
+where:
+\begin{equation}
+SNR = 10 \log_{10}\left(\frac{P_{\text{signal}}}{P_{\text{noise}}}\right)
+\end{equation}
+
+A higher SNR improvement indicates better separation of speech from noise, which directly correlates with improved listening comfort and intelligibility in assistive hearing systems.\\
+\subsubsection{Latency} 
+Latency refers to the time delay introduced by the signal processing pipeline from input audio acquisition to output audio playback. It is a critical parameter in real-time hearing systems.
+It is measured in milliseconds (ms) and includes:
+\begin{itemize}
+    \item Feature extraction time
+    \item Model inference time
+    \item Post-processing time
+    \item Audio buffering delay
+\end{itemize}
+\subsection{Machine Learning Performance}
+\subsubsection{Accuracy}
+Accuracy measures the proportion of correctly classified instances among all predictions:
+
+\begin{equation}
+Accuracy = \frac{TP + TN}{TP + FP + FN + TN}
+\end{equation}
+
+It provides an overall indication of model correctness but may be misleading in imbalanced datasets. 
+\subsubsection{Precision}
+Precision evaluates the correctness of positive predictions:
+
+\begin{equation}
+Precision = \frac{TP}{TP + FP}
+\end{equation}
+
+High precision indicates that the system minimizes false activations, which is important in adaptive noise suppression systems where incorrect speech detection may degrade performance.
+
+% \subsubsection{Recall}
+% Recall measures the ability of the model to correctly identify all relevant instances:
+% \[
+% Recall = \frac{TP}{TP + FN}
+% \]
+% High recall ensures that speech segments are not missed, which is essential for maintaining intelligibility in noisy environments.
+
+\subsubsection{F1 Score}
+The F1 score is the harmonic mean of precision and recall:
+
+\begin{equation}
+F_1 = \frac{2 \times \mathrm{Precision} \times \mathrm{Recall}}
+{\mathrm{Precision} + \mathrm{Recall}}
+\end{equation}
+
+It provides a balanced evaluation metric, particularly useful when class distribution is uneven.
+\subsection{Subjective performance metrics}
+\subsubsection{Mean Opinion Score(MOS)}
+MOS is a subjective evaluation metric used to assess perceived speech quality based on human listener judgments. Participants rate audio samples on a five-point scale:\\
+5 -- Excellent\\
+4 -- Good\\
+3 -- Fair\\
+2 -- Poor\\
+1 -- Bad\\
+The final MOS is computed as the arithmetic mean of all listener ratings:
+
+\begin{equation}
+MOS = \frac{1}{N} \sum_{i=1}^{N} r_i
+\end{equation}
+
+
+where \(r_i\) represents the rating given by each participant.
+MOS captures perceptual aspects such as clarity, naturalness, and listening comfort, which cannot be fully represented by objective metrics alone. It is therefore essential for validating real-world usability of assistive hearing systems.
+
+\section{Overall Expected Performance Comparison}
+% Table \ref{tab:expected_results} Summary of the expected performance of the proposed system compared with existing conventional technologies.
+
+\begin{table}[H]
+\caption{Summary of the Expected Performance Comparison}
+\label{tab:expected_results}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}
+{|
+>{\arraybackslash}Y|
+>{\arraybackslash}Y|
+>{\arraybackslash}Y|}
+\hline
+\textbf{Metric} & \textbf{Existing Technology} & \textbf{Expected Outcome} \\ \hline
+STOI & 0.60 -- 0.75 & 0.80 -- 0.88 \\ \hline
+Noise Reduction & 3 -- 8 dB & 8 -- 15 dB \\ \hline
+SNR Improvement & 2 -- 5 dB & 5 -- 10 dB \\ \hline
+Latency & 5 -- 10 ms & < 15 ms \\ \hline
+Accuracy & 75\% -- 85\% & 85\% -- 92\% \\ \hline
+Precision & 0.75 -- 0.85 & 0.85 -- 0.90 \\ \hline
+Recall & 0.70 -- 0.85 & 0.82 -- 0.90 \\ \hline
+F1 Score & 0.72 -- 0.85 & 0.84 -- 0.91 \\ \hline
+MOS & 2.5 -- 3.5 & 3.5 -- 4.2 \\ \hline
+\end{tabularx}
+\end{table}

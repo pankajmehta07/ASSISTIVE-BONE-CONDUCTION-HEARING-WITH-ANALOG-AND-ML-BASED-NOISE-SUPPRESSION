@@ -1,2 +1,66 @@
-\chapter{EXPECTED OUTCOMES}
-After completion, we expect to have a working prototype with the following characteristics. Steady background noise such as a fan located one meter away will be reduced substantially through analog filters, achieving a noticeable drop in loudness. Impulsive noises like a door slam or a metal object dropping will be either muted or attenuated to near inaudibility in more than nine out of ten occurrences. The end-to-end delay (latency) from microphone input to bone conduction output will remain below 15 milliseconds. Speech from a person standing two meters away in a moderately noisy environment will be clearly understood, as verified by a proposed qualitative test with five listeners. Finally, the system will draw only modest current from a typical small battery, enabling continuous operation for several hours on a single charge.
+\chapter{Expected Outcomes}
+
+The proposed system is expected to demonstrate measurable improvements in both objective and subjective performance metrics when compared against conventional hearing assistance technologies and traditional digital signal processing based noise reduction systems. Since this project focuses on implementing a machine learning based speech enhancement approach at an undergraduate research level, the expected performance improvements are moderate but significant enough to validate the effectiveness of the proposed solution. The anticipated outcomes for each evaluation metric are discussed below.
+
+\section{Objective Performance Metrics}
+Objective performance metrics are used to quantitatively measure the effectiveness of the proposed system in enhancing speech quality, reducing environmental noise, and maintaining real-time usability.
+
+\subsection{Short-Time Objective Intelligibility (STOI)}
+Short-Time Objective Intelligibility (STOI) is used to evaluate how understandable speech remains after signal processing. Conventional hearing aid systems that rely on basic digital signal processing techniques generally achieve STOI scores in the range of 0.60 to 0.75 under noisy conditions.
+
+The proposed machine learning based system is expected to achieve a better STOI score (preferably between 0.80 and 0.88 under moderate background noise conditions.) This improvement indicates better preservation of speech information during processing and improved speech intelligibility for the user. A higher STOI score would suggest that the system can better separate speech from environmental noise compared to traditional methods.
+
+\subsection{Noise Reduction (dB)}
+Noise reduction measures how effectively the system suppresses unwanted background noise while preserving the target speech signal. Existing conventional hearing aid technologies typically reduce environmental noise by approximately 3 dB to 8 dB depending on the environment and filtering algorithm used.
+
+The proposed system is aimed to achieve better noise reduction performance. Since machine learning models are capable of learning complex noise patterns, the system should perform better in environments containing non-stationary noise such as traffic, crowd conversations, or public spaces. This improvement is expected to provide users with noticeably clearer audio output.
+
+\subsection{Signal-to-Noise Ratio Improvement}
+Signal-to-Noise Ratio (SNR) improvement evaluates how much the quality of the speech signal improves relative to background noise after processing. Traditional signal processing systems generally provide SNR improvement between 2 dB and 5 dB.
+
+The proposed system is expected to improve SNR by depending on the testing environment. This indicates stronger speech enhancement capability and better separation of useful speech information from background interference. Improved SNR directly contributes to better user listening experience and improved communication quality.
+
+\subsection{Latency}
+Latency measures the delay introduced by the processing system and is a critical factor for real-time hearing assistance applications. Conventional hearing aid systems usually operate within 5 ms to 10 ms latency due to lightweight signal processing algorithms.
+
+Since machine learning inference introduces additional computational overhead, the proposed system is expected to operate with lower latency within an acceptable range for real-time audio processing. Maintaining low latency will be important to ensure natural audio perception and prevent synchronization issues during live conversation.
+
+\section{Machine Learning Performance Metrics}
+Machine learning performance metrics such as accuracy, precision, recall and f1 score evaluate the effectiveness of the classification or prediction model used within the proposed system. These metrics help determine how accurately the model can identify speech patterns and distinguish noise from useful audio signals. Traditional machine learning approaches such as Support Vector Machines or simpler classifiers generally achieve accuracy between 75\% and 85\%. Conventional models result in a precision of around 0.75 to 0.85. Existing traditional classification systems generally achieve F1 scores below 0.85. The proposed system is expected to perform better due to our analog-first methodology with a lightweight model keeping resource and budget constraints in consideration.
+
+\section{Subjective Performance Metrics}
+While objective metrics measure system performance numerically, subjective metrics evaluate user perception and real-world listening experience. Since the final purpose of the system is to improve user hearing experience, subjective evaluation is equally important.
+
+\subsection{Mean Opinion Score (MOS)}
+Mean Opinion Score (MOS) is a subjective evaluation metric in which users rate the quality of processed audio on a scale from 1 to 5, where higher values indicate better perceived audio quality.
+
+Unprocessed noisy audio scores will be compared to experimental scores for evaluating this outcome. An improvement would indicate that users perceive the processed audio as clearer, more natural, and more comfortable to listen to compared with conventional noise reduction methods.
+
+
+% \section{Overall Expected Performance Comparison}
+% % Table \ref{tab:expected_results} Summary of the expected performance of the proposed system compared with existing conventional technologies.
+
+% \begin{table}[H]
+% \caption{Summary of the Expected Performance Comparison}
+% \label{tab:expected_results}
+% \renewcommand{\arraystretch}{1.4}
+% \begin{tabularx}{\textwidth}
+% {|
+% >{\arraybackslash}Y|
+% >{\arraybackslash}Y|
+% >{\arraybackslash}Y|}
+% \hline
+% \textbf{Metric} & \textbf{Existing Technology} & \textbf{Expected Outcome} \\ \hline
+% STOI & 0.60 -- 0.75 & 0.80 -- 0.88 \\ \hline
+% Noise Reduction & 3 -- 8 dB & 8 -- 15 dB \\ \hline
+% SNR Improvement & 2 -- 5 dB & 5 -- 10 dB \\ \hline
+% Latency & 5 -- 10 ms & < 15 ms \\ \hline
+% Accuracy & 75\% -- 85\% & 85\% -- 92\% \\ \hline
+% Precision & 0.75 -- 0.85 & 0.85 -- 0.90 \\ \hline
+% Recall & 0.70 -- 0.85 & 0.82 -- 0.90 \\ \hline
+% F1 Score & 0.72 -- 0.85 & 0.84 -- 0.91 \\ \hline
+% MOS & 2.5 -- 3.5 & 3.5 -- 4.2 \\ \hline
+% \end{tabularx}
+% \end{table}
+
+Overall, the proposed system is expected to outperform traditional hearing aid signal processing techniques in terms of speech intelligibility, background noise suppression, and user-perceived audio quality. Although the latency introduced by machine learning processing may be slightly higher than conventional systems, the overall improvement in speech enhancement performance is expected to validate the effectiveness of the proposed approach.

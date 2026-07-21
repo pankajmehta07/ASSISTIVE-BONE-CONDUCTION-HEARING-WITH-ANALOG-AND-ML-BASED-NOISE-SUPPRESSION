@@ -7,13 +7,13 @@
 \usetikzlibrary{positioning,shapes,arrows}
 
 \input{src/frontmatter/abbreviations}
-\input{src/frontmatter/symbols}
+% \input{src/frontmatter/symbols}
 
 
 
 \begin{document}
 
-% \input{src/frontmatter/_coverWithSupervisors}
+\input{src/frontmatter/_coverWithSupervisors}
 \input{src/frontmatter/_coverBase}
 
 \clearpage
@@ -24,7 +24,7 @@
 % \input{src/frontmatter/copyright}
 
 
-% \input{src/frontmatter/acknow}
+\input{src/frontmatter/acknow}
 \input{src/frontmatter/abstract}
 \input{src/frontmatter/toc}
 
@@ -33,19 +33,21 @@
 
 \input{src/chapters/intro}
 \input{src/chapters/literatureReview}
-% \input{src/chapters/requirementAnalysis}
+\input{src/chapters/requirementAnalysis}
 \input{src/chapters/Methodology}
-% \input{src/chapters/implementation}
-% \input{src/chapters/result&Analysis}
-\input{src/chapters/expectedOutcomes}
+\input{src/chapters/feasibilityAnalysis}
+\input{src/chapters/implementation}
+\input{src/chapters/result&Analysis}
+\input{src/chapters/remainingTasks}
+% \input{src/chapters/expectedOutcomes}
 % \input{src/chapters/conclusion}
 % \input{src/chapters/futureEnhancements.tex}
 
-% \clearpage
-% \appendix
-% \addcontentsline{toc}{chapter}{APPENDICES}
-% \phantomsection
-% \input{src/backmatter/appendix}
+\clearpage
+\appendix
+\addcontentsline{toc}{chapter}{APPENDICES}
+\phantomsection
+\input{src/backmatter/appendix}
 
 \cleardoublepage
 \phantomsection
