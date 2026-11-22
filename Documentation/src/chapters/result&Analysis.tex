@@ -3,7 +3,6 @@
 A comparative evaluation of active and passive band-pass filter topologies was conducted for the analog input stage of a MEMS microphone audio acquisition system. The target passband was 100 Hz to 3.4 kHz, and the magnitude response of each filter was measured directly from FFT acquisitions.
 
 The measured gain values (in dB) are summarised in the following table.
-
 \begin{table}[H]
 \caption{Measured Gain of Active and Passive Band-Pass Filters}
 \label{tab:gain_comparison}
@@ -11,60 +10,79 @@ The measured gain values (in dB) are summarised in the following table.
 
 \begin{tabularx}{\textwidth}
 {|
->{\centering\arraybackslash}Y|
->{\centering\arraybackslash}Y|
->{\centering\arraybackslash}Y|}
-
+>{\arraybackslash}Y|
+>{\arraybackslash}Y|
+>{\arraybackslash}Y|}
 \hline
 \textbf{Frequency (Hz)} & \textbf{Active Filter Gain (dB)} & \textbf{Passive Filter Gain (dB)} \\
 \hline
-
-80   & $-16.0$ & $-22.4$ \\
-\hline
-120  & $-15.2$ & $-16.0$ \\
-\hline
-160  & $-7.2$  & $-11.2$ \\
-\hline
-320  & $-1.6$  & $-4.8$ \\
-\hline
-440  & $-1.6$  & $-7.2$ \\
-\hline
-520  & $-2.4$  & $-6.4$ \\
-\hline
-600  & $+1.6$  & $-3.2$ \\
-\hline
-800  & $-0.8$  & $-5.6$ \\
-\hline
-1200 & $-0.8$  & $-5.6$ \\
-\hline
-2000 & $0.0$   & $-5.6$ \\
-\hline
-2800 & $-3.2$  & $-6.4$ \\
-\hline
-3200 & $-3.2$  & $-6.4$ \\
-\hline
-4000 & $-6.4$  & -- \\
-\hline
-
+80   & $-16.0$ & $-22.4$ \\ \hline
+120  & $-15.2$ & $-16.0$ \\ \hline
+160  & $-7.2$  & $-11.2$ \\ \hline
+320  & $-1.6$  & $-4.8$ \\ \hline
+440  & $-1.6$  & $-7.2$ \\ \hline
+520  & $-2.4$  & $-6.4$ \\ \hline
+600  & $+1.6$  & $-3.2$ \\ \hline
+800  & $-0.8$  & $-5.6$ \\ \hline
+1200 & $-0.8$  & $-5.6$ \\ \hline
+2000 & $0.0$   & $-5.6$ \\ \hline
+2800 & $-3.2$  & $-6.4$ \\ \hline
+3200 & $-3.2$  & $-6.4$ \\ \hline
+4000 & $-6.4$  & -- \\ \hline
 \end{tabularx}
 \end{table}
-
 The active filter exhibited a flat in-band response, with gain remaining within $\pm$1.6 dB from 320 Hz to 2 kHz and falling only to -3.2 dB at the upper edge of the band. In contrast, the passive filter demonstrated substantial attenuation throughout the entire passband, with the peak gain at 600 Hz reaching only -3.2 dB and typical levels between -4.8 and -7.2 dB across most of the band. This significant loss of signal energy would degrade the signal-to-noise ratio and push the microphone output below the optimal range of the following analogue-to-digital converter, necessitating an additional preamplifier stage and increasing overall system complexity.
 
 The frequency responses of both designed filters have been visualized below:
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{src/images/Filter_2_op_amp.png}
     \caption{Active Band-Pass Filter Frequency Response}
     \label{fig:2_op_amp_filter}
 \end{figure}
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\linewidth]{src/images/passive_filter.png}
     \caption{Passive Band-Pass Filter Frequency Response}
     \label{fig:passive_filter}
 \end{figure}
+Based on these results, the passive topology is considered sub-optimal for this application. While the tested single-stage active filter provides a flat, near-unity response across the band, it does not offer significant passband gain or steep roll-off outside the transition region. To address these requirements, a Sallen-Key active filter with gain topology is implemented in the final design.
+\begin{table}[H]
+\caption{Frequency Response of Active Sallen-Key Band-Pass Filter with Gain}
+\label{tab:active_filter_with_gain_response}
+\renewcommand{\arraystretch}{1.4}
 
-Based on these results, the passive topology is considered sub-optimal for this application. While the tested single-stage active filter provides a flat, near-unity response across the band, it does not offer significant passband gain or steep roll-off outside the transition region. To address these requirements, a four-stage Sallen-Key active filter topology will be implemented in the final design, providing both increased passband gain and improved stopband attenuation. This approach will ensure robust signal conditioning and enhanced rejection of out-of-band noise for the MEMS microphone input stage.
+\begin{tabularx}{\textwidth}
+{|
+>{\arraybackslash}Y|
+>{\arraybackslash}Y|
+>{\arraybackslash}Y|}
+
+\hline
+\textbf{Frequency (Hz)} & \textbf{$V_{\text{out(p-p)}}$ (V)} & \textbf{ Gain (dB)} \\ \hline
+80   & 0.24 & -4.43 \\ \hline
+120  & 0.70 & 4.86  \\ \hline
+260  & 1.26 & 9.90  \\ \hline
+320  & 1.52 & 12.00 \\ \hline
+440  & 1.92 & 13.60 \\ \hline
+520  & 2.08 & 14.30 \\ \hline
+600  & 2.18 & 14.72 \\ \hline
+800  & 2.26 & 15.00 \\ \hline
+1200 & 2.30 & 15.19 \\ \hline
+2000 & 1.98 & 13.89 \\ \hline
+2800 & 1.66 & 12.36 \\ \hline
+3200 & 1.54 & 11.70 \\ \hline
+3400 & 1.46 & 11.24 \\ \hline
+4000 & 1.26 & 9.90  \\ \hline
+4500 & 1.18 & 9.39  \\ \hline
+\end{tabularx}
+\end{table}
+The results show that the final active filter provides adequate gain across the intended speech band while attenuating frequencies outside it. The gain increases from -4.43 dB at 80 Hz to 4.86 dB at 120 Hz, which confirms attenuation below the lower cutoff. Within the passband, the gain reaches 12 dB at 320 Hz and peaks at approximately 15.19 dB at 1.2 kHz, remaining above 13 dB up to 2 kHz. Beyond the upper cutoff, the gain gradually decreases to 11.24 dB at 3.4 kHz and 9.39 dB at 4.5 kHz, demonstrating the expected high-frequency attenuation. Overall, the results confirm the intended band-pass behaviour while providing sufficient signal amplification for the ADC stage. 
+
+The frequency responses of the final filter has been visualized below:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{src/images/activeFilterWithGain_Response.png}
+    \caption{Active Band-Pass Filter with Gain Frequency Response}
+    \label{fig:active_filter_with_gain_frequency_response}
+\end{figure}

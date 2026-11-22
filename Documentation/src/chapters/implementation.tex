@@ -78,13 +78,7 @@ The high-pass stage uses two equal capacitors (C3 = C4 = 100 nF) and two equal r
 f_c = \frac{1}{2\pi RC}
 \]
 \[
-f_c = \frac{1}{2\pi \times 16,\!000 \times 100 \times 10^{-9}}
-\]
-\[
-f_c = \frac{1}{10.053 \times 10^{-3}}
-\]
-\[
-f_c \approx 99.5~\text{Hz}
+f_c = \frac{1}{2\pi \times 16,\!000 \times 100 \times 10^{-9}} \approx 99.5~\text{Hz}
 \]
 This was confirmed in LTspice simulation, where Cursor 2 measured the -6 dB point at 99.808 Hz, in agreement with the calculated value to within 0.3\%.
 
@@ -97,54 +91,48 @@ The low-pass stage uses two equal resistors (R1 = R2 = 4.7 k$\Omega$) and two eq
 f_c = \frac{1}{2\pi RC}
 \]
 \[
-f_c = \frac{1}{2\pi \times 4,\!700 \times 10 \times 10^{-9}}
-\]
-\[
-f_c = \frac{1}{295.3 \times 10^{-6}}
-\]
-\[
-f_c \approx 3,\!386~\text{Hz}
+f_c = \frac{1}{2\pi \times 4,\!700 \times 10 \times 10^{-9}} \approx 3,\!386~\text{Hz}
 \]
 LTspice Cursor 1 confirmed this with a measured -6 dB point at 3.4106 kHz, a deviation of less than 0.7\% from the calculated value.
 
 The capacitor value of 10 nF was selected because it is a standard value that, when paired with a commonly available resistor in the 4-5 k$\Omega$ range, produces the required 3.4 kHz cutoff without requiring any unusual component values. The 4.7 k$\Omega$ resistor is a standard E12 series value available universally.
 
-\subsubsection{Component Summary Table}
+% \subsubsection{Component Summary Table}
 
 
-\begin{table}[H]
-\caption{Calculated and Simulated Cutoff Frequencies}
-\label{tab:cutoff_frequencies}
-\renewcommand{\arraystretch}{1.4}
+% \begin{table}[H]
+% \caption{Calculated and Simulated Cutoff Frequencies}
+% \label{tab:cutoff_frequencies}
+% \renewcommand{\arraystretch}{1.4}
 
-\begin{tabularx}{\textwidth}
-{|
->{\arraybackslash}L|
->{\arraybackslash}Y|
->{\arraybackslash}Y|
->{\arraybackslash}L|
->{\arraybackslash}L|}
+% \begin{tabularx}{\textwidth}
+% {|
+% >{\arraybackslash}L|
+% >{\arraybackslash}Y|
+% >{\arraybackslash}Y|
+% >{\arraybackslash}L|
+% >{\arraybackslash}L|}
 
-\hline
-\textbf{Stage} & \textbf{Components} & \textbf{Values} & \textbf{Calculated $f_c$} & \textbf{Simulated $f_c$} \\
-\hline
+% \hline
+% \textbf{Stage} & \textbf{Components} & \textbf{Values} & \textbf{Calculated $f_c$} & \textbf{Simulated $f_c$} \\
+% \hline
 
-High-Pass &
-$C_3 = C_4,\; R_3 = R_4$ &
-$100\,\mathrm{nF},\; 16\,\mathrm{k}\Omega$ &
-99.5 Hz &
-99.8 Hz \\
-\hline
+% High-Pass &
+% $C_3 = C_4,\; R_3 = R_4$ &
+% $100\,\mathrm{nF},\; 16\,\mathrm{k}\Omega$ &
+% 99.5 Hz &
+% 99.8 Hz \\
+% \hline
 
-Low-Pass &
-$C_1 = C_2,\; R_1 = R_2$ &
-$10\,\mathrm{nF},\; 4.7\,\mathrm{k}\Omega$ &
-3,386 Hz &
-3,411 Hz \\
-\hline
+% Low-Pass &
+% $C_1 = C_2,\; R_1 = R_2$ &
+% $10\,\mathrm{nF},\; 4.7\,\mathrm{k}\Omega$ &
+% 3,386 Hz &
+% 3,411 Hz \\
+% \hline
 
-\end{tabularx}
-\end{table}
+% \end{tabularx}
+% \end{table}
 
 
 \subsubsection{Observed Limitations}
@@ -157,98 +145,124 @@ Secondly, the equal-component design yields a quality factor of Q = 0.5 per stag
 
 Lastly, the passband flatness in the 2 stage filter, while acceptable, is not maximally flat in the Butterworth sense. The design consisting of equal components allows a small amplitude variation near the cutoff transition which a true pole-placed Butterworth design eliminates. From a hearing assistance perspective, where spectral balance of speech is important for intelligibility, this deviation, which although small, is suboptimal.
 
-\subsection{Fourth-Order Active Sallen-Key Band-Pass Filter}
+% \subsection{Fourth-Order Active Sallen-Key Band-Pass Filter}
 
-To address the limitations of the second-order equal-component design, a fourth-order Butterworth band-pass configuration was implemented as four cascaded Sallen-Key stages. The design was developed using LTspice's integrated Filter Wizard tool, which automates the pole placement calculations for higher-order active filters and generates a verified schematic directly. 
+% To address the limitations of the second-order equal-component design, a fourth-order Butterworth band-pass configuration was implemented as four cascaded Sallen-Key stages. The design was developed using LTspice's integrated Filter Wizard tool, which automates the pole placement calculations for higher-order active filters and generates a verified schematic directly. 
 
 
-\subsubsection{Butterworth Pole Placement}
+% \subsubsection{Butterworth Pole Placement}
 
-Two second-order Sallen-Key stages, each with a distinct quality factor Q, are cascaded per side to achieve a fourth-order Butterworth response. Based on the locations of the Butterworth poles on the complex frequency plane, the necessary Q values for a fourth-order Butterworth are:
-\[\text{First stage: } Q_1 = 0.5412\]
-\[\text{Second stage: } Q_2 = 1.3066\]
-These Q values are achieved by using non-equal resistor ratios within each stage rather than the equal-component simplification used in the previous design. The Filter Wizard calculates these ratios by solving the second-order transfer function simultaneously for the target cutoff frequency and the required Q, producing component values that satisfy both constraints exactly. This is the reason the generated schematic contains non-standard resistor values such as 6.04 k$\Omega$, 41.2 k$\Omega$, 147 k$\Omega$, and 174 k$\Omega$, values that would not be arrived at by the simple fc = 1/2$\pi$ RC formula alone.
+% Two second-order Sallen-Key stages, each with a distinct quality factor Q, are cascaded per side to achieve a fourth-order Butterworth response. Based on the locations of the Butterworth poles on the complex frequency plane, the necessary Q values for a fourth-order Butterworth are:
+% \[\text{First stage: } Q_1 = 0.5412\]
+% \[\text{Second stage: } Q_2 = 1.3066\]
+% These Q values are achieved by using non-equal resistor ratios within each stage rather than the equal-component simplification used in the previous design. The Filter Wizard calculates these ratios by solving the second-order transfer function simultaneously for the target cutoff frequency and the required Q, producing component values that satisfy both constraints exactly. This is the reason the generated schematic contains non-standard resistor values such as 6.04 k$\Omega$, 41.2 k$\Omega$, 147 k$\Omega$, and 174 k$\Omega$, values that would not be arrived at by the simple fc = 1/2$\pi$ RC formula alone.
 
-The result is a true -3 dB point at the cutoff frequencies of 100 Hz and 3.4 kHz, and a maximally flat passband with no amplitude ripple between these frequencies. All speech frequencies from 100 Hz to 3.4 kHz are therefore transmitted with equal amplitude, preventing the filter from introducing any tonal coloration or spectral imbalance into the amplified speech signal.
+% The result is a true -3 dB point at the cutoff frequencies of 100 Hz and 3.4 kHz, and a maximally flat passband with no amplitude ripple between these frequencies. All speech frequencies from 100 Hz to 3.4 kHz are therefore transmitted with equal amplitude, preventing the filter from introducing any tonal coloration or spectral imbalance into the amplified speech signal.
 
-\subsubsection{Stage Configuration and Component Values}
+% \subsubsection{Stage Configuration and Component Values}
 
-The filter is divided into four Sallen-Key stages. The high-pass side consists of two stages, referred to as Stage C and Stage D, which together realise the fourth-order high-pass response with a cutoff at 100 Hz. The low-pass side consists of two stages, referred to as Stage A and Stage B, which together realise the fourth-order low-pass response with a cutoff at 3.4 kHz.
+% The filter is divided into four Sallen-Key stages. The high-pass side consists of two stages, referred to as Stage C and Stage D, which together realise the fourth-order high-pass response with a cutoff at 100 Hz. The low-pass side consists of two stages, referred to as Stage A and Stage B, which together realise the fourth-order low-pass response with a cutoff at 3.4 kHz.
 
-Stage C implements the first high-pass Butterworth stage ($Q_1$ = 0.5412) using two equal capacitors of 100 nF and two resistors with values R1 = 6.04 k$\Omega$ and R2 = 41.2 k$\Omega$. The non-equal resistor ratio is what establishes the required Q for this pole pair.
+% Stage C implements the first high-pass Butterworth stage ($Q_1$ = 0.5412) using two equal capacitors of 100 nF and two resistors with values R1 = 6.04 k$\Omega$ and R2 = 41.2 k$\Omega$. The non-equal resistor ratio is what establishes the required Q for this pole pair.
 
-Stage D implements the second high-pass Butterworth stage ($Q_2$ = 1.3066) using two equal capacitors of 10 nF and two resistors with values R1 = 147 k$\Omega$ and R2 = 174 k$\Omega$. The large resistor values in this stage arise from the high Q requirement: achieving $Q_2$ = 1.3066 requires a large ratio between the two resistors, and at 10 nF capacitance the absolute resistor values are pushed into the hundred-K$\Omega$ range. These high resistance values are within the LM324's input bias current specification and do not introduce significant error.
+% Stage D implements the second high-pass Butterworth stage ($Q_2$ = 1.3066) using two equal capacitors of 10 nF and two resistors with values R1 = 147 k$\Omega$ and R2 = 174 k$\Omega$. The large resistor values in this stage arise from the high Q requirement: achieving $Q_2$ = 1.3066 requires a large ratio between the two resistors, and at 10 nF capacitance the absolute resistor values are pushed into the hundred-K$\Omega$ range. These high resistance values are within the LM324's input bias current specification and do not introduce significant error.
 
-Stage A implements the first low-pass Butterworth stage ($Q_1$ = 0.5412) using capacitors of 100 nF and 10 nF and resistors of R1 = 787 $\Omega$ and R2 = 2.8 k$\Omega$.
+% Stage A implements the first low-pass Butterworth stage ($Q_1$ = 0.5412) using capacitors of 100 nF and 10 nF and resistors of R1 = 787 $\Omega$ and R2 = 2.8 k$\Omega$.
 
-Stage B implements the second low-pass Butterworth stage ($Q_2$ = 1.3066) using two equal capacitors of 10 nF and four resistors with values R1 = 3.24 k$\Omega$, R2 = 6.81 k$\Omega$, R3 = 38.3 k$\Omega$, and R4 = 15.8 k$\Omega$.
+% Stage B implements the second low-pass Butterworth stage ($Q_2$ = 1.3066) using two equal capacitors of 10 nF and four resistors with values R1 = 3.24 k$\Omega$, R2 = 6.81 k$\Omega$, R3 = 38.3 k$\Omega$, and R4 = 15.8 k$\Omega$.
 
-\subsubsection{Component Summary}
+% \subsubsection{Component Summary}
 
-\begin{table}[H]
-\caption{Designed Butterworth Filter Stages}
-\label{tab:filter_stages}
-\renewcommand{\arraystretch}{1.4}
+% \begin{table}[H]
+% \caption{Designed Butterworth Filter Stages}
+% \label{tab:filter_stages}
+% \renewcommand{\arraystretch}{1.4}
 
-\begin{tabularx}{\textwidth}
-{|
->{\arraybackslash}L|
->{\arraybackslash}L|
->{\arraybackslash}Y|
->{\arraybackslash}Y|
->{\arraybackslash}L|
->{\arraybackslash}Y|}
+% \begin{tabularx}{\textwidth}
+% {|
+% >{\arraybackslash}L|
+% >{\arraybackslash}L|
+% >{\arraybackslash}Y|
+% >{\arraybackslash}Y|
+% >{\arraybackslash}L|
+% >{\arraybackslash}Y|}
 
-\hline
-\textbf{Stage} & \textbf{Function} & \textbf{Capacitors} & \textbf{Resistors} & \textbf{Q} & \textbf{Role} \\
-\hline
+% \hline
+% \textbf{Stage} & \textbf{Function} & \textbf{Capacitors} & \textbf{Resistors} & \textbf{Q} & \textbf{Role} \\
+% \hline
 
-Stage C &
-High-Pass &
-$C_1 = C_2 = 100\,\mathrm{nF}$ &
-$R_1 = 6.04\,\mathrm{k}\Omega,\; R_2 = 41.2\,\mathrm{k}\Omega$ &
-0.5412 &
-1st HP Butterworth pole pair \\
-\hline
+% Stage C &
+% High-Pass &
+% $C_1 = C_2 = 100\,\mathrm{nF}$ &
+% $R_1 = 6.04\,\mathrm{k}\Omega,\; R_2 = 41.2\,\mathrm{k}\Omega$ &
+% 0.5412 &
+% 1st HP Butterworth pole pair \\
+% \hline
 
-Stage D &
-High-Pass &
-$C_1 = C_2 = 10\,\mathrm{nF}$ &
-$R_1 = 147\,\mathrm{k}\Omega,\; R_2 = 174\,\mathrm{k}\Omega$ &
-1.3066 &
-2nd HP Butterworth pole pair \\
-\hline
+% Stage D &
+% High-Pass &
+% $C_1 = C_2 = 10\,\mathrm{nF}$ &
+% $R_1 = 147\,\mathrm{k}\Omega,\; R_2 = 174\,\mathrm{k}\Omega$ &
+% 1.3066 &
+% 2nd HP Butterworth pole pair \\
+% \hline
 
-Stage A &
-Low-Pass &
-$C_1 = 100\,\mathrm{nF},\; C_2 = 10\,\mathrm{nF}$ &
-$R_1 = 787\,\Omega,\; R_2 = 2.8\,\mathrm{k}\Omega$ &
-0.5412 &
-1st LP Butterworth pole pair \\
-\hline
+% Stage A &
+% Low-Pass &
+% $C_1 = 100\,\mathrm{nF},\; C_2 = 10\,\mathrm{nF}$ &
+% $R_1 = 787\,\Omega,\; R_2 = 2.8\,\mathrm{k}\Omega$ &
+% 0.5412 &
+% 1st LP Butterworth pole pair \\
+% \hline
 
-Stage B &
-Low-Pass &
-$C_1 = C_2 = 10\,\mathrm{nF}$ &
-$R_1 = 3.24\,\mathrm{k}\Omega,\; R_2 = 6.81\,\mathrm{k}\Omega,\; R_3 = 38.3\,\mathrm{k}\Omega,\; R_4 = 15.8\,\mathrm{k}\Omega$ &
-1.3066 &
-2nd LP Butterworth pole pair \\
-\hline
+% Stage B &
+% Low-Pass &
+% $C_1 = C_2 = 10\,\mathrm{nF}$ &
+% $R_1 = 3.24\,\mathrm{k}\Omega,\; R_2 = 6.81\,\mathrm{k}\Omega,\; R_3 = 38.3\,\mathrm{k}\Omega,\; R_4 = 15.8\,\mathrm{k}\Omega$ &
+% 1.3066 &
+% 2nd LP Butterworth pole pair \\
+% \hline
 
-\end{tabularx}
-\end{table}
+% \end{tabularx}
+% \end{table}
+
+\subsection{Active Sallen-Key Band-Pass Filter with Gain}
+
+The final band-pass filter implementation was developed to address the practical requirements identified during the evaluation of the previous filter configurations. It uses an LM324 quad operational amplifier to implement the filtering, signal buffering, DC biasing, and output amplification required for operation from a single 5 V supply. The circuit consists of a second-order Sallen-Key high-pass stage with a lower cutoff of approximately 100 Hz, a second-order Sallen-Key low-pass stage with an upper cutoff of approximately 3.4 kHz, and a final non-inverting amplification stage. 
+
+\subsubsection{Circuit Configuration}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{src/images/activeFilterSchematic.png}
+    \caption{Active Sallen-Key Band-Pass Filter with Gain Circuit Diagram}
+    \label{fig:2_op_amp_filter_with_gain}
+\end{figure}
+The final circuit is divided into three functional sections. The first section is a second-order Sallen-Key high-pass filter, the second section is a second-order Sallen-Key low-pass filter, and the third section provides voltage amplification.
+The high-pass stage uses C1=C2=100nF and R1=R2$\approx$16k$\Omega$. The output of the first op-amp is fed back directly to its inverting input, configuring it as a unity-gain voltage follower. The high-pass stage is followed by the second-order low-pass stage. This stage uses R3=R4=4.7k$\Omega$ and C3=C4=10nF. The op-amp again operates as a buffer, preventing the following circuitry from significantly loading the filter. The final op-amp is configured as a non-inverting amplifier. Resistors R5=1k$\Omega$ and R6=3.3k$\Omega$ establish the closed-loop voltage gain. 
+
+\subsubsection{Output Amplification Stage}
+
+After band-pass filtering, the signal is amplified using the remaining LM324 amplifier configured as a non-inverting amplifier. The voltage gain is determined by R5 and R6:
+\[ Av = 1 + \frac{R6}{R5} \]
+Using R5=1k$\Omega$ and R6=3.3k$\Omega$:
+\[ Av = 1 + \frac{3.3k\Omega}{1k\Omega}  = 4.3 \]
+Therefore, the output amplitude is approximately 4.3 times the input amplitude within the passband, corresponding to approximately 12.7 dB of voltage gain.
+The gain stage compensates for attenuation introduced by the filtering stages and increases the signal level to a suitable range for the subsequent ADC/TinyML processing stage. Since the amplifier is referenced to VREF, the output remains centered around approximately 2.5V rather than around 0V.
+
+\section{Noise Gate Circuit Design}
+
+An op-amp comparator serves as a precise voltage gate for an analog MEMS microphone by comparing the microphone's dynamic signal against a fixed reference threshold. The microphone outputs a tiny AC audio signal riding on a steady DC bias voltage (typically around 0.8V to 1.5V). By setting the op-amp's non-inverting input (+) to a matching 1.5V reference voltage, the circuit acts as a digital switch. When the microphone's output stays below this 1.5V threshold, the op-amp forces its output down to 0V (Ground), blocking the signal. The moment a sound causes the microphone voltage to peak above 1.5V, the op-amp instantly flips its output high to match the system power supply (typically 3.3V or 5V), cleanly signaling that the threshold has been crossed. Exact threshold tuning will be completed at the beginning of part B of our project.
 
 \section{Audio Dataset Preparation}
 
 To develop the TinyML model for transient noise detection, a custom audio dataset was created using recordings captured through commonly available devices such as a mobile phone or laptop. The recordings were recorded as a mono-channel audio at a sampling frequency of 16 kHz. The 16 kHz sampling rate is selected as it satisfies the Nyquist criterion, as the sample frequency 16kHz is more than twice the upper cutoff frequency of the band-pass filter which is 3.4 kHz, which ensures the full speech band is represented without aliasing. Mono channel capture was specified to match the single-channel input configuration of the STM32F401 ADC and to reduce memory and processing requirements during both dataset preparation and model training.
-
 
 \subsection{Recording Setup}
 
 Recordings were made through a mobile phone or laptop microphone in realistic acoustic conditions rather than a controlled environment. This was a deliberate decision as a model trained on clean studio audio would encounter a systematic mismatch when deployed in factory floors, workshops, and outdoor industrial settings where background noise and room reverberation are always present. Recording under realistic conditions makes the training distribution consistent with the deployment distribution, reducing covariate shift.
 
 Two categories of audio were recorded. The first consists of normal speech and background audio, forming the negative class (label 0). The second consists of recordings containing deliberate transient noise events such as sudden impacts, object drops, door slams, and sharp striking sounds which formed the positive class (label 1). Transient events were produced at varied intensities and distances from the microphone to expose the model to the amplitude variation it will encounter during deployment.
-
 
 \subsection{Annotation in Audacity}
 
